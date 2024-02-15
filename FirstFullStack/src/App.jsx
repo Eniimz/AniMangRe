@@ -6,7 +6,7 @@ import SignIn from "./Pages/SignIn"
 import SignUp from "./Pages/SignUp"
 import "./index.css";
 import Header from "./components/Header";
-
+import FooterComp from "./components/Footer"
 const App = () => {
     return (
 
@@ -19,6 +19,7 @@ const App = () => {
             <Route path="/sign-in" element = {<SignIn />} />
             <Route path="/sign-up" element = {<SignUp />} />
         </Routes>
+        <FooterComp />
 
         </BrowserRouter>
         </>

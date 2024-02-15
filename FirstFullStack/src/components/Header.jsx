@@ -18,7 +18,7 @@ function Header() {
     <div className=''>
         <div className='flex items-center p-2 justify-between gap-4 overflow-hidden border-b-2' style={{backgroundColor: 'white'}}>
             <div className='md:ml-4'>
-                <h3 className='text-lg font-bold'>AniMangRe</h3>
+                <Link to = "/" className='text-lg font-bold'>AniMangRe</Link>
             </div>
 
             <div className='flex items-center rounded-lg border-2'>
