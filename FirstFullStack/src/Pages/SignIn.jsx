@@ -2,12 +2,17 @@ import React, { useState } from 'react'
 import { Label, TextInput, Button, Alert, Spinner} from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom';
 import { set } from 'mongoose';
+import { signInReq, signInFail, signInSuccess } from '../redux/userSlice';
+import { useSelector, useDispatch } from 'react-redux'
 
 function SignIn() {
 
   const [formData, setFormData] = useState({})
-  const [errorMessage, setErrorMessage] = useState(null)
-  const [loading, setLoading] = useState(false)
+  
+  const dispatch = useDispatch()
+
+  const {loading, data, errorMessage} = useSelector((state) => state.user)
+
   const navigate = useNavigate()
 
   function handleChange(e){
@@ -18,12 +23,11 @@ function SignIn() {
     e.preventDefault();
     
     if(!formData.email || !formData.password){
-      return setErrorMessage("All fields are required")
+      dispatch(signInFail("All fields are required"))
     }
 
     try{
-      setErrorMessage(null)
-      setLoading(true)
+      dispatch(signInReq())
       const res = await fetch('/api/auth/signIn', {
         method: 'POST',
         headers: {'Content-Type' : 'application/json'},
@@ -33,8 +37,7 @@ function SignIn() {
       const data = await res.json()
 
       if(data.success === false){
-        setLoading(false)
-        return setErrorMessage(data.message)
+        dispatch(signInFail(data.message))
       }
 
       // if(!data.authenticated){
@@ -42,14 +45,15 @@ function SignIn() {
       //   return setErrorMessage("Email or Password is incorrect")
       // }
 
-      setLoading(false)
+      
 
-      if(data.authenticated){
+      if(res.ok){
+        dispatch(signInSuccess(data))
         navigate('/')
       }
 
     }catch(error){
-      next(error)
+      console.log(error.message)
     }
     
 

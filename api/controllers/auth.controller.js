@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs'
 import errorHandler from "../utils/errorHandler.js"
 import dotenv from 'dotenv'
 import { MongoClient } from "mongodb"
+import jwt from 'jsonwebtoken'
 
 
 export const signUp = async (req, res, next) => {
@@ -52,16 +53,23 @@ export const signIn = async (req, res, next) => {
     if(foundUser[0]){
         const hashedPassword = foundUser[0].password
         isAuthenticated = await bcryptjs.compare(password, hashedPassword)
+        
     }
 
+    const token = jwt.sign({ id: foundUser[0]}, process.env.JWT_SECRET)
+
+    if(!foundUser[0]){
+        return next(errorHandler(400, "User not found"))
+    }
+
+    const {password: pass, ...rest} = foundUser[0]
+
     if(isAuthenticated){
-        res.json({
-            message : "user authenticated",
-            authenticated: true
-    })
+        res.status(200).cookie('access_token', token, { 
+            httpOnly: true}).json(rest)
     }
     else{
-         return next(errorHandler(400, "Email or Password is Incorrect"))
+         return next(errorHandler(400, "Password Incorrect"))
     }
 
   }catch(error){
