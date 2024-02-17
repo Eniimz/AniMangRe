@@ -50,17 +50,20 @@ export const signIn = async (req, res, next) => {
     let isAuthenticated = false
     const foundUser = await collection.find({email}).toArray();  
 
+
+    if(!foundUser[0]){
+        return next(errorHandler(400, "User not found"))
+    }
+
     if(foundUser[0]){
         const hashedPassword = foundUser[0].password
         isAuthenticated = await bcryptjs.compare(password, hashedPassword)
         
     }
 
-    const token = jwt.sign({ id: foundUser[0]}, process.env.JWT_SECRET)
+    const token = jwt.sign({ id: foundUser[0]._id}, process.env.JWT_SECRET)
 
-    if(!foundUser[0]){
-        return next(errorHandler(400, "User not found"))
-    }
+    
 
     const {password: pass, ...rest} = foundUser[0]
 
@@ -75,7 +78,46 @@ export const signIn = async (req, res, next) => {
   }catch(error){
     return next(error)
   }
-    
+}
 
+export const googleSignIn = async (req, res, next) => {
+
+    const {name, email, pfp} = req.body
+    console.log("body: ",req.body)
+
+    try{
+        const foundUser = await User.findOne({email})
+
+        if(foundUser){
+            const {password: pass, ...rest} = foundUser
+            const token = jwt.sign({id: foundUser._id}, process.env.JWT_SECRET)
+            res.status(200).cookie('access_token', token, {
+                httpOnly: true
+            }).json(rest)
+        }
+        else{
+            const randomPassword = Math.random().toString(36).slice(-8) 
+            const hashpassword = bcryptjs.hashSync(randomPassword, 10)
+
+            const newUser = new User({
+                username: name.toLowerCase().split(' ').join(' ') + Math.random().toString(36).slice(-4),
+                email,
+                password: hashpassword,
+                pfp
+            })
+
+            await newUser.save()
+
+            const {password , ...rest} = newUser._doc
+            const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET)
+            res.status(200).cookie('access_token', token, {
+                httpOnly: true
+            }).json(rest)
+            
+        }
+    }catch(error){
+        next(error)
+    }
+    
 
 }

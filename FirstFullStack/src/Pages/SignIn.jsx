@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { set } from 'mongoose';
 import { signInReq, signInFail, signInSuccess } from '../redux/userSlice';
 import { useSelector, useDispatch } from 'react-redux'
+import Oauth from '../components/Oauth';
 
 function SignIn() {
 
@@ -87,6 +88,8 @@ return (
                       <div>
                           <Button gradientDuoTone="pinkToOrange" className='min-w-full' type='submit' disabled = {loading}> {loading ? <Spinner size = "sm"/> : "Sign in"} {loading && <span className='pl-3'>Loading...</span>}</Button>
                       </div>
+
+                      <Oauth />
                       
                       <div className='text-sm'>
                           <span>Dont Have an account?  </span>

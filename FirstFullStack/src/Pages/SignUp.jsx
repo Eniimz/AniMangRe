@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Label, TextInput, Button, Alert, Spinner} from 'flowbite-react'
 import { Link, useNavigate } from 'react-router-dom';
+import Oauth from '../components/Oauth';
 
 
 
@@ -82,6 +83,8 @@ function SignUp() {
                         <div>
                             <Button gradientDuoTone="pinkToOrange" className='min-w-full' type='submit' disabled = {loading}> {loading ? <Spinner size = "sm"/> : "Sign up"} {loading && <span className='pl-3'>Loading...</span>}</Button>
                         </div>
+
+                        <Oauth />
                         
                         <div className='text-sm'>
                             <span>Have an account?  </span>
