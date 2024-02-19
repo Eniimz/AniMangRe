@@ -1,65 +1,86 @@
 import React, { useState } from 'react';
-import { FaMoon, FaSearch, FaBars} from "react-icons/fa"
-import { Link } from 'react-router-dom';
-import { Button } from 'flowbite-react';
+import { FaMoon, FaSearch, FaBars, FaSun} from "react-icons/fa"
+import {AiOutlineSearch} from'react-icons/ai'
+import { Link, useLocation } from 'react-router-dom';
+import { Avatar, Button, Dropdown, DropdownDivider, Navbar, TextInput } from 'flowbite-react';
+import { useSelector,useDispatch } from 'react-redux';
+import { current } from '@reduxjs/toolkit';
+import {toggleMode} from '../redux/theme/themSlice'
 
 
 function Header() {
 
-    const [showMenu, setShowMenu] = useState(false)
-    const [selectedMenu, setSelecteMenu] = useState([false, false, false])
+    const dispatch = useDispatch();
+    const path = useLocation().pathname;
+    const {mode} = useSelector(state => state.theme)
+    const { data: currentUser } = useSelector((state) => state.user)
 
-    const menuSelectStyle = {
-        backgroundColor: selectedMenu ? '#0972fe' : ''
-    }
-
-    
   return (
-    <div className=''>
-        <div className='flex items-center p-2 justify-between gap-4 overflow-hidden border-b-2' style={{backgroundColor: 'white'}}>
-            <div className='md:ml-4'>
-                <Link to = "/" className='text-lg font-bold'>AniMangRe</Link>
+    <Navbar className={`border-b-2`}>
+            <div className=''>
+                <Link to = "/" className='text-xl font-bold'>AniMangRe</Link>
             </div>
 
-            <div className='flex items-center rounded-lg border-2'>
-                <input type="text" placeholder='Search...' className='p-1 md:h-10 px-3 rounded-l-lg hidden lg:flex'/>
-                <button className='bg-white p-3 rounded-2xl md:px-3'> <FaSearch style={{color: 'lightgray'}}/></button>
+            <form className='flex'>
+                <TextInput
+                placeholder='Search..'
+                rightIcon={FaSearch}
+                className='hidden lg:inline'
+                />
+            </form>
+            <Button  className='h-10 w-12 lg:hidden flex' color='gray' pill>
+                <AiOutlineSearch className='size-5'/>
+            </Button>
+
+            <div className='flex md:order-2 gap-3'>
+            <Button className='h-10 w-12' pill color='gray' onClick={() => dispatch(toggleMode())}>
+                {mode === 'dark' ? <FaMoon /> : <FaSun />}
+            </Button>
+
+            {currentUser ? (
+                <Dropdown
+                arrowIcon = {false}
+                inline
+                label = {<Avatar img={currentUser.pfp} rounded/>}
+                >
+                    <Dropdown.Header className='flex flex-col'>
+                        <span>@{currentUser.name}</span>
+                        <span className='font-bold'>{currentUser.email}</span>
+                    </Dropdown.Header>
+                    <Link>
+                    <Dropdown.Item> Profile </Dropdown.Item>
+                    </Link>
+                    <Dropdown.Divider/>
+                    <Dropdown.Item> Sign Out </Dropdown.Item>
+                </Dropdown>
+            )
+            :
+            (
+            <Link to='/sign-in'>    
+            <Button gradientDuoTone='pinkToOrange' outline >
+                Sign in
+            </Button>
+            </Link>)
+            }
+            
+            <Navbar.Toggle />
             </div>
 
-            <div className='md:flex justify-between w-60 hidden gap-3'>
-                <Link to="/">Home</Link>
-                <Link to="/about">About</Link>
-                <Link to="/review">Review</Link>
-            </div>
+            <Navbar.Collapse>
+                    <Navbar.Link active = {path === '/'} as={'div'}> 
+                        <Link to='/'>Home</Link>
+                    </Navbar.Link>
 
+                    <Navbar.Link active = {path === '/Review'} as={'div'}>
+                        <Link to='/Review'>Review</Link>
+                    </Navbar.Link >
 
-            <div className= "flex mr-5 md:mr-4 w-28 md:w-40 justify-between items-center md:gap-1">
-                <button className= "bg-white h-11 px-5 rounded-3xl hidden md:block border-2">
-                <FaMoon />    
-                </button> 
-                <Link to = '/sign-in'>
-                <Button gradientDuoTone="pinkToOrange" outline >Sign in</Button>
-                </Link>
-                <button className=' md:hidden h-10 w-6 ' onClick={() => setShowMenu((prevValue) => !prevValue)} ><FaBars style={{height: '100%', width: '100%', color: 'white'}}/></button>
-            </div>
+                    <Navbar.Link active = {path === '/About'} as={'div'}>
+                        <Link to='/About'>About</Link>
+                    </Navbar.Link>       
+            </Navbar.Collapse>
 
-        </div>
-
-        {showMenu &&  <div>
-            <ul>
-                <li className='p-3' style={menuSelectStyle}>
-                    <button onClick={() => setSelecteMenu(prevValue => [...prevValue])}><Link to="/">Home</Link></button>
-                </li>
-                <li className='p-3' style={menuSelectStyle}>
-                    <button onClick={() => setSelecteMenu(prevValue => !prevValue)}><Link to="/about">About</Link></button>
-                </li>
-                <li className='p-3' style={menuSelectStyle}>
-                    <button onClick={() => setSelecteMenu(prevValue => !prevValue)}><Link to="/review">Review</Link></button>
-                </li>
-            </ul>
-        </div>}
-
-    </div>
+    </Navbar>
   )
 }
 

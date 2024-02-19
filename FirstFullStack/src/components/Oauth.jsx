@@ -22,11 +22,12 @@ function Oauth() {
         
 
         try{
+            dispatch(signInReq())
             const googleResponse = await signInWithPopup(auth, provider)
             const userData = googleResponse.user
 
             const user = {
-                name : userData.displayName,
+                username : userData.displayName,
                 email: userData.email,
                 pfp: userData.photoURL
             }
@@ -38,11 +39,6 @@ function Oauth() {
             })
 
             const data = await res.json();
-            console.log(user)
-
-            if(data.success === false){
-                dispatch(signInFail(data.message))
-            }
 
             if(res.ok){
                 dispatch(signInSuccess(data))
@@ -50,7 +46,7 @@ function Oauth() {
             }
 
         }catch(error){
-            console.log(error.message)
+            dispatch(signInFail(error.message))
         }
 
 

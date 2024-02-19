@@ -63,8 +63,6 @@ export const signIn = async (req, res, next) => {
 
     const token = jwt.sign({ id: foundUser[0]._id}, process.env.JWT_SECRET)
 
-    
-
     const {password: pass, ...rest} = foundUser[0]
 
     if(isAuthenticated){
@@ -82,14 +80,13 @@ export const signIn = async (req, res, next) => {
 
 export const googleSignIn = async (req, res, next) => {
 
-    const {name, email, pfp} = req.body
-    console.log("body: ",req.body)
+    const {username, email, pfp} = req.body
 
     try{
         const foundUser = await User.findOne({email})
 
         if(foundUser){
-            const {password: pass, ...rest} = foundUser
+            const {password: pass, ...rest} = foundUser._doc
             const token = jwt.sign({id: foundUser._id}, process.env.JWT_SECRET)
             res.status(200).cookie('access_token', token, {
                 httpOnly: true
@@ -100,7 +97,7 @@ export const googleSignIn = async (req, res, next) => {
             const hashpassword = bcryptjs.hashSync(randomPassword, 10)
 
             const newUser = new User({
-                username: name.toLowerCase().split(' ').join(' ') + Math.random().toString(36).slice(-4),
+                username: username.toLowerCase().split(' ').join(' ') + Math.random().toString(36).slice(-4),
                 email,
                 password: hashpassword,
                 pfp
