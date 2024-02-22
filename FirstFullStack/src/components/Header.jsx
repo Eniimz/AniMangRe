@@ -4,6 +4,7 @@ import {AiOutlineSearch} from'react-icons/ai'
 import { Link, useLocation } from 'react-router-dom';
 import { Avatar, Button, Dropdown, DropdownDivider, Navbar, TextInput } from 'flowbite-react';
 import { useSelector,useDispatch } from 'react-redux';
+import { signOut } from '../redux/userSlice';
 import { current } from '@reduxjs/toolkit';
 import {toggleMode} from '../redux/theme/themSlice'
 
@@ -14,6 +15,22 @@ function Header() {
     const path = useLocation().pathname;
     const {mode} = useSelector(state => state.theme)
     const { data: currentUser } = useSelector((state) => state.user)
+
+    const handleSignOut = async () => {
+
+        try{
+            const res = await fetch('/api/auth/signOut', {
+                method: 'POST'
+            })
+
+            if(res.ok){
+                dispatch(signOut())
+                navigate('/')
+            }
+        }catch(error){
+            console.log(error.message)
+        }
+    }
 
   return (
     <Navbar className={`border-b-2`}>
@@ -44,14 +61,14 @@ function Header() {
                 label = {<Avatar img={currentUser.pfp} rounded/>}
                 >
                     <Dropdown.Header className='flex flex-col'>
-                        <span>@{currentUser.name}</span>
+                        <span>@{currentUser.username}</span>
                         <span className='font-bold'>{currentUser.email}</span>
                     </Dropdown.Header>
-                    <Link>
+                    <Link to='/dashboard?tab=profile'>
                     <Dropdown.Item> Profile </Dropdown.Item>
                     </Link>
                     <Dropdown.Divider/>
-                    <Dropdown.Item> Sign Out </Dropdown.Item>
+                    <Dropdown.Item onClick={handleSignOut}> Sign Out </Dropdown.Item>
                 </Dropdown>
             )
             :

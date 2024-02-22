@@ -1,14 +1,20 @@
 import React, { useState } from 'react'
-import { TextInput, Button, Alert, Spinner, Avatar } from 'flowbite-react'
-import {signInReq, signInSuccess, signInFail, updateReq, updateSuccess, updateFail} from '../redux/userSlice'
+import { TextInput, Button, Alert, Spinner, Avatar, Modal } from 'flowbite-react'
+import {signInReq, signInSuccess, signInFail, updateReq, updateSuccess, updateFail, deleteReq, deleteSuccess, deleteFail, signOut} from '../redux/userSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import { AiFillDatabase } from 'react-icons/ai';
+import { Link, useNavigate } from 'react-router-dom';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
+
 
 export const DashboardProfile = () => {
 
     const {loading, data, errorMessage: updateError} = useSelector(state => state.user)
     const dispatch = useDispatch();
     const {data: currentUser} = useSelector(state => state.user)
+    const [showModal, setShowModal] = useState(false)
+
+    const navigate = useNavigate()
 
 
     const [formData, setFormData] = useState({})
@@ -55,6 +61,43 @@ export const DashboardProfile = () => {
         }
 
     }
+
+    const handleDelete = async () => {
+
+        try{
+            dispatch(deleteReq())
+            const res = await fetch(`/api/user/delete/${currentUser._id}`,{
+                method: 'DELETE'
+            })
+
+            const data = res.json()
+
+            if(res.ok){
+                dispatch(deleteSuccess())
+                navigate('/')
+            }
+
+        }catch(error){
+            dispatch(deleteFail(error.message))
+            console.log(error.message)
+        }
+    }
+
+    const handleSignOut = async () => {
+
+        try{
+            const res = await fetch('/api/auth/signOut', {
+                method: 'POST'
+            })
+
+            if(res.ok){
+                dispatch(signOut())
+                navigate('/')
+            }
+        }catch(error){
+            console.log(error.message)
+        }
+    }
     
     return (
         <div className='mt-10 flex flex-col items-center gap-3 w-full'>
@@ -70,10 +113,28 @@ export const DashboardProfile = () => {
                 <Button gradientDuoTone='purpleToBlue' type='submit' outline>Update {loading && <Spinner/>}</Button>
 
                 <div className='text-red-500 flex justify-between'>
-                    <span>Delete account</span>
-                    <span>Sign out</span>
+                    <span className='cursor-pointer' onClick={() => setShowModal(true)}>Delete account</span>
+                    <span className='cursor-pointer' onClick={handleSignOut}>Sign out</span>
                 </div>
+
             </form>
+
+            <Modal show={showModal} size='md' popup onClose={() => setShowModal(false)}>
+                <Modal.Header />
+                <div className='px-9 flex flex-col items-center gap-2'>
+                    <HiOutlineExclamationCircle className='h-14 w-14'/>
+                    <div className='w-full items-center flex justify-center'>
+                        <h3>Are you sure you want to delete the account?</h3>
+                    </div>
+
+                    <div className=' mt-3 px-5 flex justify-between w-full flex-wrap'>
+                        <Button color='failure' onClick={handleDelete}> Yes, I'm Sure </Button>
+                        <Button onClick={() => setShowModal(false)}> No, cancel </Button>
+                    </div>
+                </div>
+                <Modal.Footer />
+            </Modal>
+
         </div>
   )
 }

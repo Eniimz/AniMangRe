@@ -1,15 +1,34 @@
 import { Sidebar } from 'flowbite-react'
 import { useLocation, Link } from 'react-router-dom'
 import {HiUser, HiArrowSmRight} from 'react-icons/hi';
+import { useDispatch } from 'react-redux';
+import { signOut } from '../redux/userSlice';
 
 import React from 'react'
 
 const DashboardSidebar = () => {
 
+    const dispatch = useDispatch();
     const location = useLocation();
     
     const urlParams = new URLSearchParams(location.search)
     const activeTab = urlParams.get('tab')
+
+    const handleSignOut = async () => {
+
+        try{
+            const res = await fetch('/api/auth/signOut', {
+                method: 'POST'
+            })
+
+            if(res.ok){
+                dispatch(signOut())
+                navigate('/')
+            }
+        }catch(error){
+            console.log(error.message)
+        }
+    }
 
   return (
     <div className='h-full w-full'>
@@ -28,7 +47,7 @@ const DashboardSidebar = () => {
                 </Link>
 
                 <Link>
-                <Sidebar.Item as='div' icon= {HiArrowSmRight}>
+                <Sidebar.Item as='div' icon= {HiArrowSmRight} onClick={handleSignOut}>
                     Sign out
                 </Sidebar.Item>
                 </Link>
