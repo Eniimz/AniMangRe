@@ -9,7 +9,7 @@ function ThemeProvider({children}) {
 
 
     return (
-        <div className={`${mode} h-full`}>
+        <div className={`${mode}`}>
             <div className='bg-white text-gray-700 dark:bg-[rgb(9,11,20)] dark:text-gray-200 h-full'>
                 {children}
             </div>
