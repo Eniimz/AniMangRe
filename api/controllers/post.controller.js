@@ -5,20 +5,54 @@ const {ffprobe} = Ffmpeg;
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 import https from 'https';
-import http from 'http';
-import fs from 'fs';
-import {firebaseConfig} from '../../FirstFullStack/src/firebase.js';
-import {getDownloadURL,uploadBytes, ref, getStorage} from 'firebase/storage';
-import { initializeApp } from "firebase/app";
-import axios, { Axios } from "axios";
+import fs, { read } from 'fs';
+import { Readable } from "stream";
 import * as stream from 'stream';
 import url from 'url'
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getStorage, getDownloadURL } from 'firebase-admin/storage';
 
-export const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app)
+import serviceAccount from '../animangre-1c9c0-firebase-adminsdk-6qu8y-9840e76a9b.json' assert { type: 'json' };
+import { error } from "console";
+import { config } from "dotenv";
+import { request } from "http";
+
+initializeApp({
+    credential: cert(serviceAccount),
+    storageBucket: 'animangre-1c9c0.appspot.com'
+})
+
+const bucket = getStorage().bucket();
+
+async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
+    try {
+      const file = bucket.file(`thumbnails/${fileName}`); //creating a reference for the thubmnail in the firebase storage bucket => thumbnails/filname
+      await file.save(fileContent, {
+        contentType: 'image/png', // Set the content type appropriately
+        metadata: {
+          metadata: {
+            firebaseStorageDownloadTokens: uuidv4()
+          }
+        }
+      });
+      console.log(`${fileName} uploaded to Firebase Storage successfully.`);
+
+      const config = {
+        version: 'v2',
+        action : 'read',
+        expires : '3-07-2025'
+      }
+
+      const [url] = await file.getSignedUrl(config);
+      console.log("URL INSIDE THE FUNCTION: ", url)
+      
 
 
-
+    } catch (error) {
+    //   fs.unlinkSync(tempFilePath)
+      console.error('Error uploading file to Firebase Storage:', error);
+    }
+  }
 
 
 const __dirname = path.resolve();
@@ -33,7 +67,7 @@ Ffmpeg.setFfprobePath(ffprobePath);
 
 export const createPost = async (req, res, next) => {
 
-    const {userId, title, src, description} = req.body;
+    const {userId, title, src, description, thumbnailSrc} = req.body;
 
     if(!title || !src || !description || title === ''|| src === '' || description === ''){
         return next(errorHandler(400, "All fields are required"))
@@ -42,7 +76,8 @@ export const createPost = async (req, res, next) => {
     const newPost = new Post({
         userId: req.user.id,
         title,
-        src,
+        videoSrc: src,
+        thumbnailSrc,
         description
     })
 
@@ -109,47 +144,67 @@ const removeThumbnails = (thumbnailDirectory) => {
     })
 }
 
+const getFirstFile = (directory) => {
+    try{
+        const files = fs.readdirSync(directory)
+    
+        if(files.length === 0){
+            console.log("Error: The Directory is empty..") 
+        }else{
+            console.log("The Directory is not empty")
+        }
+
+        const filePath = path.join(directory, files[0]); 
+        const fileContent = fs.readFileSync(filePath)
+
+        return fileContent
+        
+
+    }catch(error){
+        console.log("Error while getting the first File: ", error.message)
+    }
+    
+} 
+
 
 export const getThumbnail = (req, res, next) => {
 
     console.log("entered....");
+    let thumbnailFileName = '';
 
     const firebaseUrl = req.body.filePath;
-    const urlObj = new URL(firebaseUrl);
-
-    const options = {
-        hostname: urlObj.hostname,
-        port: 443, 
-        path: urlObj.pathname + urlObj.search,
-        method: 'GET'
-    }
 
     const {fileName} = req.body;
-    const tempFilePath = path.join(__dirname, 'temp', `${fileName}-${uuidv4()}`)
+    const tempFilePath = path.join(__dirname, 'temp', `${fileName}-${uuidv4()}`) //creating temp video file
+
     const tempThumbnailDirectory = path.join(__dirname, 'thumbnails')
-    const file = fs.createWriteStream(tempFilePath);
+
+    const file = fs.createWriteStream(tempFilePath); //creating a write stream - a mechanism so that data can be written to the file
 
     
-    console.log("Now Making The fetch get request")
+    console.log("Now Making The https get request")
     console.log("this is the body ......: ", req.body)
     try{
         https.get(firebaseUrl, (response) => {
+
+            /*Here , we are making a request to the url(video url from firebase Storage), getting its data
+            then piping the data to a write stream which is pointing towards a file, in this way url content
+            is transfered to the file and we get the data in a file ,that is video in a file (here, in this scenario).
+            */
             
-            console.log("Using the response from fetch")
+            console.log("Using the response from https")
             
             response.pipe(file);
 
             console.log("after piping...")
             
             let fileDuration = '';
-            let storageRef = '';
-            let thumbnailUrl = '';      
     
             file.on('finish', () => {
                 console.log("entered FileStream.on...")
                 file.close(() => {
                     console.log("Performing action after closing the fileStream")
-                    Ffmpeg.ffprobe(tempFilePath, (err, metadata) => {
+                    Ffmpeg.ffprobe(tempFilePath, (err, metadata) => { //after we get video in file form, we probe it for getting any data about it
                         console.log("probing the video/edit")
 
                         if(err){
@@ -167,32 +222,57 @@ export const getThumbnail = (req, res, next) => {
                     Ffmpeg(tempFilePath)
                     .on('filenames', (filenames) => {
                         console.log("---Now Entering Ffmpeg.on.... ---")
-            
                         console.log('Will generate ' + filenames.join(', '));
-                        storageRef = ref(storage, `thumbnails/${filenames[0]}`)
-    
-                        console.log("wil upload thumbnail now...")
-                        uploadBytes(storageRef, filenames[0]).then(() => {
-                            console.log("Thumbnail Uploaded to")
-                            getDownloadURL(storageRef).then((downloadUrl) => {
-    
-                                thumbnailUrl = downloadUrl;
-                                console.log("downoadUrl: ", downloadUrl)
-                                
-                                fs.unlinkSync(tempFilePath)
-                                removeThumbnails(tempThumbnailDirectory)
-                                
-                                res.status(200).json({
-                                    message: "reached after upload",
-                                    fileDuration: fileDuration,
-                                    thumbnailUrl : thumbnailUrl
-                                })    
-                            })
-                        })   
+
+                        thumbnailFileName = filenames[0];
+
                     })
-                    .on('end', () => {
-    
+                    .on('end', async () => {
+
                         console.log("Screenshots Taken")  
+                        const firstThumbnailFile = getFirstFile(tempThumbnailDirectory);
+                        // uploadFileToStorageAndGetUrl(firstThumbnailFile, thumbnailFileName);
+
+                        try {
+                            const file = bucket.file(`thumbnails/${thumbnailFileName}`); //creating a reference for the thubmnail in the firebase storage bucket => thumbnails/filname
+                            await file.save(firstThumbnailFile, {
+                              contentType: 'image/png', // Set the content type appropriately
+                              metadata: {
+                                metadata: {
+                                  firebaseStorageDownloadTokens: uuidv4()
+                                }
+                              }
+                            });
+                            console.log(`${thumbnailFileName} uploaded to Firebase Storage successfully.`);
+                      
+                            const config = {
+                              version: 'v2',
+                              action : 'read',
+                              expires : '3-07-2025'
+                            }
+                      
+                            const [url] = await file.getSignedUrl(config);
+                            console.log("URL INSIDE THE FUNCTION: ", url)
+
+                            fs.unlinkSync(tempFilePath);
+                            removeThumbnails(tempThumbnailDirectory)
+                            
+                            res.json({
+                                success: true,
+                                thumbnailUrl: url,
+                                thumbnail: thumbnailFileName,
+                                fileDuration
+                            })
+                      
+                      
+                          } catch (error) {
+                            fs.unlinkSync(tempFilePath)
+                            removeThumbnails(tempThumbnailDirectory)
+                            console.error('Error uploading file to Firebase Storage:', error);
+                          }
+
+                        
+
                         
                     })
                     .screenshots({
@@ -208,12 +288,15 @@ export const getThumbnail = (req, res, next) => {
             })
             
         }).on('error', (error) => {
+            fs.unlinkSync(tempFilePath)
+            removeThumbnails(tempThumbnailDirectory) 
             console.error('Error: ', error)
         })
 
 
     }catch(error){
         fs.unlinkSync(tempFilePath)
+        removeThumbnails(tempThumbnailDirectory)
         return next(error)
     }
       

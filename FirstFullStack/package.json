@@ -13,6 +13,7 @@
     "@reduxjs/toolkit": "^2.2.1",
     "firebase": "^10.8.0",
     "flowbite-react": "^0.7.2",
+    "fs": "^0.0.1-security",
     "postcss-cli": "^7.1.2",
     "rc-progress": "^3.5.1",
     "react": "^18.2.0",

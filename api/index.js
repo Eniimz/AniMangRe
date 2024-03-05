@@ -5,7 +5,7 @@ import userRoutes from "./routes/user.route.js"
 import authRoutes from "./routes/auth.route.js"
 import postRoutes from './routes/post.route.js'
 import cookieParser from 'cookie-parser';
-
+import timeout from 'connect-timeout'
 dotenv.config()
 
 mongoose.connect(process.env.MONGO)
@@ -16,6 +16,7 @@ mongoose.connect(process.env.MONGO)
 })
 
 const app = express();
+app.use(timeout('400s'));
 
 
 app.use(express.json())
@@ -30,9 +31,7 @@ process.on('uncaughtException', (err) => {
     console.log(err)
 })
 
-server.timeout = 60000;
 
-server.setTimeout(60000);
 
 app.use('/api/user', userRoutes)
 app.use('/api/auth', authRoutes )

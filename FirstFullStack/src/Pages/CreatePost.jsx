@@ -5,12 +5,14 @@ import { set } from 'mongoose'
 import {storage, app} from '../firebase';
 import {ref, uploadBytes, listAll, getDownloadURL, uploadBytesResumable} from 'firebase/storage'
 import  uuid  from 'react-uuid';
-import { populateUrl } from '../redux/postSlice';
-import { useDispatch } from 'react-redux';
-import { Line } from 'rc-progress'
+import { populateUrl, populateDuration } from '../redux/postSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { Line } from 'rc-progress';
 
 
 function CreatePost() {
+
+    const {thumbnailUrl, editDuration} = useSelector(state => state.post);
 
     const [video, setVideo] = useState(null)
     const [videoSrc, setVideoSrc] = useState('')
@@ -31,7 +33,7 @@ function CreatePost() {
     const dispatch = useDispatch();
 
     
-    const imagesRef = ref(storage, 'videos/')
+    const storageRef = ref(storage, '/')
 
     const handleChange = (e) => {
         setFormData((prevFormData) => ({
@@ -50,6 +52,13 @@ function CreatePost() {
         }
     }
 
+    const removeThumbnails = (thumbnailDirectory) => {
+        const files = fs.readdirSync(thumbnailDirectory);
+        files.forEach((file) => {
+            const filePath = path.join(thumbnailDirectory, file);
+            fs.unlinkSync(filePath) 
+        })
+    }
 
     const uploadVideo2 = () => {
 
@@ -85,7 +94,7 @@ function CreatePost() {
                 },
                 () => {
                   getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                    console.log("downloadUrl: ", downloadURL)
+                    console.log("downloadUrl of the edit in video: ", downloadURL)
                     setVideoSrc(downloadURL)
                     setFormData((prevFormData) => ({
                         ...prevFormData,
@@ -103,14 +112,24 @@ function CreatePost() {
                     // setProcessingVid(true)
                     console.log("processing....")
 
-                    const res = fetch('/api/posts/thumbnail', {   //getting the thumbnail from uploaded video
+                    const res = fetch('/api/posts/thumbnail', {   //getting the thumbnail file from uploaded video
                         method: "POST",
                         headers: {"Content-Type" : "application/json"},
                         body: JSON.stringify(file)
-                    }).then(res => res.json()).then((data) => {
-                        setProcessingVid(false)
-                        console.log("processing finished")
-                        console.log(data)
+                    })
+                    .then(res => res.json())
+                    .then((data) => {
+                        setProcessingVid(false);
+                        console.log("processing finished");
+                        console.log(data);
+                        if(data.success){
+                            dispatch(populateUrl(data.thumbnailUrl));
+                            dispatch(populateDuration(data.fileDuration));
+                            setFormData((prevFormData) => ({
+                                ...prevFormData,
+                                thumbnailSrc: data.thumbnailUrl
+                            }))
+                        }
                     })
                     
                     
@@ -177,6 +196,9 @@ function CreatePost() {
             }
             
         </div>
+
+        <img src={thumbnailUrl} alt="firebaseimg" />
+        <p>{`Duration: ${editDuration}`}</p>
 
         {processingVid && <h2>Proccessing Video...</h2>}
 
