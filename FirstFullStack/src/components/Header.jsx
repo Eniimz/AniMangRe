@@ -67,6 +67,9 @@ function Header() {
                     <Link to='/dashboard?tab=profile'>
                     <Dropdown.Item> Profile </Dropdown.Item>
                     </Link>
+                    <Link to='/create-post'>
+                    <Dropdown.Item> Upload Edit </Dropdown.Item>
+                    </Link>
                     <Dropdown.Divider/>
                     <Dropdown.Item onClick={handleSignOut}> Sign Out </Dropdown.Item>
                 </Dropdown>
@@ -89,7 +92,7 @@ function Header() {
                     </Navbar.Link>
 
                     <Navbar.Link active = {path === '/Review'} as={'div'}>
-                        <Link to='/Review'>Review</Link>
+                        <Link to='/posts'>Edits</Link>
                     </Navbar.Link >
 
                     <Navbar.Link active = {path === '/About'} as={'div'}>

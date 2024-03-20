@@ -1,4 +1,5 @@
 import Post from "../models/post.model.js";
+import User from "../models/user.model.js";
 import errorHandler from "../utils/errorHandler.js";
 import Ffmpeg from "fluent-ffmpeg";
 const {ffprobe} = Ffmpeg;
@@ -27,7 +28,7 @@ const bucket = getStorage().bucket();
 async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
     try {
       const file = bucket.file(`thumbnails/${fileName}`); //creating a reference for the thubmnail in the firebase storage bucket => thumbnails/filname
-      await file.save(fileContent, {
+      await file.upload(fileContent, {
         contentType: 'image/png', // Set the content type appropriately
         metadata: {
           metadata: {
@@ -91,13 +92,13 @@ export const createPost = async (req, res, next) => {
 }
     
 export const getPosts = async (req, res, next) => {
-
     try{
         const startIndex = parseInt(req.query.startIndex) || 0;
         const limit = parseInt(req.query.limit) || 9;
         const sortDirection = req.query.order === 'asc' ? 1 : -1
 
         const getPosts = await Post.find({
+            ...(req.query.postId) && { _id: req.query.postId },
             ...(req.query.userId && { userId: req.query.userId }),
             ...(req.query.title && { title: req.query.title }),
             ...(req.query.searchTerm && {
@@ -300,4 +301,16 @@ export const getThumbnail = (req, res, next) => {
         return next(error)
     }
       
+}
+
+
+export const getPfp = (req, res, next) => {
+
+    User.findById(req.body.userId).then((result) => {
+        res.status(200).json({
+            pfp : result.pfp
+        })
+    }).catch(err => {
+        next(err)
+    })
 }

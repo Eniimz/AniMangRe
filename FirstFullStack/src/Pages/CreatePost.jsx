@@ -8,6 +8,7 @@ import  uuid  from 'react-uuid';
 import { populateUrl, populateDuration } from '../redux/postSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { Line } from 'rc-progress';
+import { ThreeDots } from 'react-loader-spinner'
 
 
 function CreatePost() {
@@ -34,6 +35,14 @@ function CreatePost() {
 
     
     const storageRef = ref(storage, '/')
+
+    useEffect(() => {
+        if(videoUploaded){
+
+        }
+    }, [videoUploaded])
+    
+
 
     const handleChange = (e) => {
         setFormData((prevFormData) => ({
@@ -104,14 +113,14 @@ function CreatePost() {
                     setImageUploadProgress(null);
                     setImageUploadError(null);
                     setVideoUploaded(true)
+                    setProcessingVid(true)
 
                     const file = {
                         filePath: downloadURL,
                         fileName: uniqueFileName
                     }
-                    // setProcessingVid(true)
-                    console.log("processing....")
 
+                    console.log("processing....")
                     const res = fetch('/api/posts/thumbnail', {   //getting the thumbnail file from uploaded video
                         method: "POST",
                         headers: {"Content-Type" : "application/json"},
@@ -119,17 +128,19 @@ function CreatePost() {
                     })
                     .then(res => res.json())
                     .then((data) => {
-                        setProcessingVid(false);
+                        
                         console.log("processing finished");
                         console.log(data);
                         if(data.success){
-                            dispatch(populateUrl(data.thumbnailUrl));
-                            dispatch(populateDuration(data.fileDuration));
+                            dispatch(populateUrl(data.thumbnailUrl))
                             setFormData((prevFormData) => ({
                                 ...prevFormData,
-                                thumbnailSrc: data.thumbnailUrl
+                                thumbnailSrc: data.thumbnailUrl 
                             }))
                         }
+                        setProcessingVid(false);
+                        console.log("The processing after: ", processingVid);   
+                        
                     })
                     
                     
@@ -146,6 +157,21 @@ function CreatePost() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError(null)
+        
+        if(!formData || formData.title === '' || !formData.title){
+            console.log("Formdata: ", formData)
+            return setError("Title not added")
+        }
+
+        if(!videoUploaded){
+            return setError("Video not uploaded yet")
+        }
+
+        if(processingVid){
+            return setError("Processing...Please wait")
+        }
+
+        
 
         try{
             const res = await fetch('/api/posts/create', {
@@ -172,8 +198,9 @@ function CreatePost() {
         }catch(err){
             setError(err.message)
         }
-    }
 
+        navigate('/posts');
+    }
 
   return (
     <div className='mt-20 flex flex-col items-center gap-10 mx-10 min-h-screen'>
@@ -187,34 +214,52 @@ function CreatePost() {
 
         <div className='flex w-full justify-between max-w-md items-center'>
             <FileInput type='file' accept='video/*' onChange = {handleFileChange} className='w-56'/>
-            {videoUploaded ? 
+            {
+            videoUploaded ? 
             <Alert color="info" className='p-3'>
-                Video Uploaded,
+                {processingVid ? 'Processing...' : 'Video Uploaded'}
             </Alert>
             :
-            uploadClicked ? <Line percent={imageUploadProgress} strokeWidth={1} strokeLinecap='round' trailColor='#D3D3D3' trailWidth={1} strokeColor="green" className='h-3 w-48'/> : <Button onClick={uploadVideo2} disabled={video === null}>Upload Video</Button>        
+            uploadClicked ? 
+            <Line percent={imageUploadProgress} strokeWidth={1} strokeLinecap='round' trailColor='#D3D3D3' trailWidth={1} strokeColor="green" className='h-3 w-48'/> 
+            : <Button onClick={uploadVideo2} disabled={video === null}> Upload Video </Button>        
             }
             
         </div>
 
-        <img src={thumbnailUrl} alt="firebaseimg" />
-        <p>{`Duration: ${editDuration}`}</p>
+        {
+        processingVid ?
+        <ThreeDots
+        visible={true}
+        height="80"
+        width="80"
+        color="#d76a04"
+        radius="9"
+        ariaLabel="three-dots-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+        />
+        :    
+        videoSrc &&
+        <video width="320" height="110" controls className='rounded-lg w-96'>
+            <source src={videoSrc} type={`video/mp4` || `video/avi`}/>
+            Your browser does not support the video tag.
+        </video>
+        }
 
-        {processingVid && <h2>Proccessing Video...</h2>}
+        {error && 
+        <Alert color='failure'>
+            {error}
+        </Alert>
+        }
 
         <div className='w-full max-w-md'>
         <textarea placeholder='Description...' name="" id="description" cols="30" rows="10" className='w-full bg-transparent' onChange={handleChange}/>
         </div>
 
         <div>
-            <Button gradientDuoTone='pinkToOrange' type='submit' onClick={handleSubmit}>Upload Post</Button>
+            <Button gradientDuoTone='pinkToOrange' type='submit' onClick={handleSubmit} className='mb-9'>Upload Post</Button>
         </div>
-        
-        {error && 
-        <Alert color='failure'>
-            {error}
-        </Alert>
-        }
 
     </div>
   )

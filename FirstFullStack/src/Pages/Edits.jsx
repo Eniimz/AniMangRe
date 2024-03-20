@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import {Link} from 'react-router-dom'
 import { useSelector } from 'react-redux';
 import uuid from 'react-uuid';
+import { Spinner } from 'flowbite-react';
+import { formatDistanceToNow } from 'date-fns';
 
 
 
@@ -10,9 +13,13 @@ function Edits() {
     console.log("ThumbnailUrl : ",thumbnailUrl)
     console.log("Duration: ", editDuration)
 
-    const [posts, setPosts] = useState([])
+    const [posts, setPosts] = useState([]);
+    const [postImages, setPostImages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     console.log("posts: ", posts)
+
+    
 
     useEffect( () => {
 
@@ -24,31 +31,83 @@ function Edits() {
             }catch(err){
                 console.log(err.message)
             }
+            setLoading(true)
         }
-
+        
         fetchPosts();
 
     },[])
 
+    useEffect(() => {
+        async function fetchPostImages(){
 
-    const postBox = posts.map((post) => (
-        <div className='flex flex-col gap-2 border-2 w-fit border-teal-200 rounded-lg' key={uuid()}>
-            <video width="320" height="110" controls className='rounded-lg'>
-                <source src={post.videoSrc} type="video/mp4" />
-                Your browser does not support the video tag.
-            </video>
-            <img src={post.thumbnailSrc} alt="firebase img"  className='w-80'/>
-            <div>
-                <h3>{post.title}</h3>
+            const imageUrls = []
+
+            for (const post of posts){
+
+                const imageUrl = await getImage(post.userId);
+                imageUrls.push(imageUrl)
+
+            }
+            
+            setPostImages(imageUrls)
+            
+        }
+
+        fetchPostImages();
+    }, [posts])
+
+    const getImage = async (id) => {
+        const userId = {
+            userId: id
+        }
+        try{
+            const res = await fetch("/api/posts/getPfp", {
+                method: 'POST',
+                headers: { "Content-Type" : "application/json" },
+                body: JSON.stringify(userId)
+            })
+
+            const data = await res.json();
+
+            if(!res.ok){
+                console.log("error occured")
+            }
+            console.log(data)
+            return data.pfp;
+
+        }catch(err){
+            console.log(err.message)
+        }
+    }
+
+    const postBox = posts.map((post, index) => (
+        <Link to={`/posts/${post._id}`} >
+        <div className='flex flex-col gap-2 w-fit rounded-lg cursor-pointer' key={uuid()}>
+
+            <img src={post.thumbnailSrc} alt="firebase img"  className='w-80 h-40 rounded-lg'/>
+            <div className='flex items-center gap-3'>
+                <img src={postImages[index]} alt="" referrerPolicy="no-referrer" className='rounded-3xl w-10'/>
+                <div className=''>
+                    <h3>{post.title}</h3>   
+                    <p className='text-sm from-neutral-100'>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</p>
+                </div>
             </div>
-        </div>
+        </div>  
+        </Link>
     ))
 
 
   return (
     <div className='min-h-screen'>
         <div className='mt-10 px-20 flex flex-wrap gap-5'>
-            {postBox}
+            {
+                loading ?
+                postBox :
+                <div className='w-full flex justify-center'>
+                    <Spinner size='xl'/>
+                </div>
+            }
         </div>
     </div>
   )

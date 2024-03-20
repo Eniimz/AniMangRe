@@ -11,6 +11,7 @@ import FooterComp from "./components/Footer"
 import PrivateRoutes from './components/PrivateRoutes'
 import CreatePost from "./Pages/CreatePost"
 import Edits from "./Pages/Edits"
+import { Edit } from "./Pages/Edit"
 
 
 const App = () => {
@@ -26,7 +27,8 @@ const App = () => {
                <Route path= '/dashboard' element= {<Dashboard />}/>
             </Route>
             <Route path="/create-post" element={<CreatePost />}></Route>
-            <Route path="/posts" element={<Edits />} />
+            <Route path="/posts" element={<Edits />} />  
+            <Route path="/posts/:id" element={<Edit />} />
             
         </Routes>
 

@@ -1,4 +1,5 @@
 import User from "../models/user.model.js"
+import Post from "../models/post.model.js"
 import bcryptjs from 'bcryptjs'
 import errorHandler from "../utils/errorHandler.js"
 import dotenv from 'dotenv'
@@ -20,7 +21,8 @@ export const signUp = async (req, res, next) => {
     const newUser = new User({
         username,
         email,
-        password : hashedPassword
+        password : hashedPassword,
+        pfp
     })
 
     try{
