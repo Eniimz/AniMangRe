@@ -4,7 +4,8 @@ const postSlice = createSlice({
     name: 'post',
     initialState: {
         thumbnailUrl : '',
-        editDuration : ''
+        editDuration : '',
+        postId : '',
     },
 
     reducers: {
@@ -13,9 +14,12 @@ const postSlice = createSlice({
         },
         populateDuration: (state, action) => {
             state.editDuration = action.payload
+        },
+        selectedPostId : (state, action) => {
+            state.postId = action.payload;
         }
     }
 })
 
 export default postSlice.reducer;
-export const {populateUrl, populateDuration} = postSlice.actions;
+export const {selectedPostId, populateUrl, populateDuration} = postSlice.actions;

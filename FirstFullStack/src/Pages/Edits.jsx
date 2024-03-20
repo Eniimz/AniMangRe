@@ -15,7 +15,7 @@ function Edits() {
 
     const [posts, setPosts] = useState([]);
     const [postImages, setPostImages] = useState([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     console.log("posts: ", posts)
 
@@ -31,7 +31,7 @@ function Edits() {
             }catch(err){
                 console.log(err.message)
             }
-            setLoading(true)
+            setLoading(false)
         }
         
         fetchPosts();
@@ -85,11 +85,12 @@ function Edits() {
         <Link to={`/posts/${post._id}`} >
         <div className='flex flex-col gap-2 w-fit rounded-lg cursor-pointer' key={uuid()}>
 
-            <img src={post.thumbnailSrc} alt="firebase img"  className='w-80 h-40 rounded-lg'/>
+            <img src={post.thumbnailSrc} alt="firebase img" className='w-80 h-40 rounded-lg'/>
+            
             <div className='flex items-center gap-3'>
                 <img src={postImages[index]} alt="" referrerPolicy="no-referrer" className='rounded-3xl w-10'/>
-                <div className=''>
-                    <h3>{post.title}</h3>   
+                <div className='w-full'>
+                    <h3 className='max-w-64'>{post.title}</h3>   
                     <p className='text-sm from-neutral-100'>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</p>
                 </div>
             </div>
@@ -101,12 +102,13 @@ function Edits() {
   return (
     <div className='min-h-screen'>
         <div className='mt-10 px-20 flex flex-wrap gap-5'>
-            {
-                loading ?
-                postBox :
-                <div className='w-full flex justify-center'>
-                    <Spinner size='xl'/>
-                </div>
+            {  
+            loading ?
+            <div className='flex justify-center w-full'>
+                <Spinner size='xl'/>
+            </div>
+            :
+            postBox
             }
         </div>
     </div>

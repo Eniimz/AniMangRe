@@ -70,7 +70,7 @@ export const createPost = async (req, res, next) => {
 
     const {userId, title, src, description, thumbnailSrc} = req.body;
 
-    if(!title || !src || !description || title === ''|| src === '' || description === ''){
+    if(!title || !src || title === ''|| src === ''){
         return next(errorHandler(400, "All fields are required"))
     }
 
@@ -313,4 +313,36 @@ export const getPfp = (req, res, next) => {
     }).catch(err => {
         next(err)
     })
+}
+
+export const deletePost = async (req, res, next) => {
+    try{
+        const post = await Post.findByIdAndDelete(req.params.postId);
+
+        res.status(200).json("post has been deleted");
+
+    }catch(err){
+        next(err)
+    }
+}
+
+export const updatePost = async (req, res, next) => {
+
+    try{
+        const user = await Post.findByIdAndUpdate(
+            req.params.postId,
+            {
+                $set: {
+                    title: req.body.title,
+                    description: req.body.description
+                }
+            }, {new: true}
+        )
+
+        res.status(200).json("updated successfully");
+
+    }catch(error){
+        next(error)
+    }
+
 }

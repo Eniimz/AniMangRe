@@ -10,6 +10,7 @@ import Header from "./components/Header";
 import FooterComp from "./components/Footer"
 import PrivateRoutes from './components/PrivateRoutes'
 import CreatePost from "./Pages/CreatePost"
+import UpdatePost from "./Pages/UpdatePost"
 import Edits from "./Pages/Edits"
 import { Edit } from "./Pages/Edit"
 
@@ -25,8 +26,10 @@ const App = () => {
             <Route path="/sign-up" element = {<SignUp />} />
             <Route element= {<PrivateRoutes />}>
                <Route path= '/dashboard' element= {<Dashboard />}/>
+               <Route path="/create-post" element={<CreatePost />} />
+               <Route path="/update-post" element={<UpdatePost />} />
             </Route>
-            <Route path="/create-post" element={<CreatePost />}></Route>
+            
             <Route path="/posts" element={<Edits />} />  
             <Route path="/posts/:id" element={<Edit />} />
             

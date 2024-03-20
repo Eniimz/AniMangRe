@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
+
 
 export const Edit = () => {
 
@@ -33,12 +35,13 @@ export const Edit = () => {
 
             <div className='w-full '>
                 <h2 className='font-semibold text-lg'>{post[0]?.title}</h2>   
+                {post[0]?.createdAt && <p>{formatDistanceToNow(new Date(post[0]?.createdAt), { addSuffix: true })}</p>}
             </div>
 
-            <div className='w-full border-t-2 pt-4'>
+            {<div className='w-full border-t-2 pt-4'>
                 <h1 className='text-xl font-bold pb-2'>Description</h1>
                 <h2 className=''>{post[0]?.description}</h2>
-            </div>
+            </div>}
             
     </div>
     </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import DashboardSidebar from '../components/DashboardSidebar'
 import { DashboardProfile } from '../components/DashboardProfile'
 import { useLocation } from 'react-router-dom'
+import { DashboardEdits } from '../components/DashboardEdits';
 
 function Dashboard() {
 
@@ -11,9 +12,10 @@ function Dashboard() {
     const activeTab = urlParams.get('tab')
   return (
     <div className='min-h-screen flex flex-col md:flex-row'>
-    <div className='md:w-56'><DashboardSidebar /></div>
+    <div className='min-w-52'><DashboardSidebar /></div>
 
     {activeTab === 'profile' && <DashboardProfile />}
+    {activeTab === 'edits' && <DashboardEdits />}
     </div>
   )
 }

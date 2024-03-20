@@ -42,10 +42,10 @@ const DashboardSidebar = () => {
 
                 <Link to='/dashboard?tab=edits'>
                 <Sidebar.Item active = {activeTab === 'edits'}  as='div'>
-                    Edits
+                    Your edits
                 </Sidebar.Item>
                 </Link>
-
+        
                 <Link>
                 <Sidebar.Item as='div' icon= {HiArrowSmRight} onClick={handleSignOut}>
                     Sign out

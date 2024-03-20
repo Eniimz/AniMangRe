@@ -202,6 +202,7 @@ function CreatePost() {
         navigate('/posts');
     }
 
+
   return (
     <div className='mt-20 flex flex-col items-center gap-10 mx-10 min-h-screen'>
         <div>
