@@ -1,23 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import {Link} from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import uuid from 'react-uuid';
 import { Spinner } from 'flowbite-react';
 import { formatDistanceToNow } from 'date-fns';
-
+import { selectedPostId } from '../redux/postSlice';
 
 
 function Edits() {
 
     const {thumbnailUrl, editDuration} = useSelector(state => state.post);
-    console.log("ThumbnailUrl : ",thumbnailUrl)
-    console.log("Duration: ", editDuration)
+    
 
     const [posts, setPosts] = useState([]);
     const [postImages, setPostImages] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    console.log("posts: ", posts)
+    const dispatch = useDispatch();
 
     
 
@@ -73,7 +72,6 @@ function Edits() {
             if(!res.ok){
                 console.log("error occured")
             }
-            console.log(data)
             return data.pfp;
 
         }catch(err){
@@ -81,9 +79,9 @@ function Edits() {
         }
     }
 
-    const postBox = posts.map((post, index) => (
-        <Link to={`/posts/${post._id}`} >
-        <div className='flex flex-col gap-2 w-fit rounded-lg cursor-pointer' key={uuid()}>
+    const postBox = posts?.map((post, index) => (
+        <Link to={`/posts/${post._id}`} key={index} >
+        <div className='flex flex-col gap-2 w-fit rounded-lg cursor-pointer' key={uuid()} onClick={() => dispatch(selectedPostId(post._id))}>
 
             <img src={post.thumbnailSrc} alt="firebase img" className='w-80 h-40 rounded-lg'/>
             

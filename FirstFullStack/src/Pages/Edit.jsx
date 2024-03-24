@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
+import { CommentSection } from '../components/CommentSection';
 
 
 export const Edit = () => {
@@ -26,24 +27,26 @@ export const Edit = () => {
 
   return (
     <div className='flex flex-col items-center justify-center p-10'>
-    <div className='flex flex-col w-fit gap-5 rounded-lg items-center'>
+        <div className='flex flex-col w-fit gap-5 rounded-lg items-center'>
 
-            {post[0] && <video width="320" height="110" controls className='rounded-lg w-[1000px]'>
-                <source src={post[0]?.videoSrc} type="video/mp4"/>
-                Your browser does not support the video tag.
-            </video>}
+                {post[0] && <video width="320" height="110" controls className='rounded-lg w-[1000px]'>
+                    <source src={post[0]?.videoSrc} type="video/mp4"/>
+                    Your browser does not support the video tag.
+                </video>}
 
-            <div className='w-full '>
-                <h2 className='font-semibold text-lg'>{post[0]?.title}</h2>   
-                {post[0]?.createdAt && <p>{formatDistanceToNow(new Date(post[0]?.createdAt), { addSuffix: true })}</p>}
-            </div>
+                <div className='w-full '>
+                    <h2 className='font-semibold text-lg'>{post[0]?.title}</h2>   
+                    {post[0]?.createdAt && <p>{formatDistanceToNow(new Date(post[0]?.createdAt), { addSuffix: true })}</p>}
+                </div>
 
-            {<div className='w-full border-t-2 pt-4'>
-                <h1 className='text-xl font-bold pb-2'>Description</h1>
-                <h2 className=''>{post[0]?.description}</h2>
-            </div>}
-            
-    </div>
+                {<div className='w-full border-t-2 pt-4'>
+                    <h1 className='text-xl font-bold pb-2'>Description</h1>
+                    <h2 className=''>{post[0]?.description}</h2>
+                </div>}
+                
+                <CommentSection />
+
+        </div>
     </div>
   )
 }
