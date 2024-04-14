@@ -4,7 +4,7 @@ import Post from "../models/post.model.js";
 
 export const createComment = async (req, res, next) => {
 
-    const { username, pfp, comment, postId, userId } = req.body;
+    const { username, pfp, comment, postId, userId, stars } = req.body;
 
     console.log(req.body)
 
@@ -15,7 +15,8 @@ export const createComment = async (req, res, next) => {
             postId,
             userId,
             pfp,
-            comment
+            comment,
+            stars
         })
 
         await newComment.save();
@@ -41,13 +42,34 @@ export const getPostComments = async (req, res, next) => {
 
         let totalComments = foundComments.length
 
+        let sum = 0;
+        let overallRating = 0;
+
+        foundComments.forEach(comment => {
+
+            sum += comment.stars;
+            
+        })
+
+        if(totalComments != 0){
+            overallRating = sum/totalComments;
+        }
+
         if(foundComments.length == 0){
             totalComments = 0;
         }
 
+        await Post.findByIdAndUpdate({ _id: req.query.postId},
+            {
+                $set:{
+                    rating: overallRating
+                }
+            }, {new: true})
+
         res.status(200).json({
             comments: foundComments,
-            totalComments
+            totalComments,
+            overallRating: overallRating.toFixed(1)
         })
 
     }catch(err){
@@ -64,6 +86,26 @@ export const deleteComment = async (req, res, next) => {
         success: true,
         message: "deleted successfully"
     })
-    
+
+}
+
+export const updateComment = async (req, res, next) => {
+
+    const { username, comment, stars } = req.body;
+
+    try{
+        const updatedUser = await Comment.findByIdAndUpdate(req.params.commentId, {
+            $set: {
+                comment,
+                stars
+            }
+        }, { new: true });
+
+        res.status(200).json({
+            message: 'Updated successfully'
+        })
+    }catch(err){
+        next(err);
+    }
 
 }

@@ -106,7 +106,7 @@ export const getPosts = async (req, res, next) => {
                 {title: {$regex: req.query.searchTerm, $options: 'i'}}
             ]   })
          })
-        .sort({ updatedAt: sortDirection })
+        .sort({ createdAt: sortDirection })
         .skip({ startIndex })
         .limit(limit)
 

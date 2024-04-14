@@ -6,6 +6,7 @@ const postSlice = createSlice({
         thumbnailUrl : '',
         editDuration : '',
         postId : '',
+        overallRating : ''
     },
 
     reducers: {
@@ -17,9 +18,12 @@ const postSlice = createSlice({
         },
         selectedPostId : (state, action) => {
             state.postId = action.payload;
+        },
+        populateOverallRating : (state, action) => {
+            state.overallRating = action.payload
         }
     }
 })
 
 export default postSlice.reducer;
-export const {selectedPostId, populateUrl, populateDuration} = postSlice.actions;
+export const {selectedPostId, populateUrl, populateDuration, populateOverallRating} = postSlice.actions;
