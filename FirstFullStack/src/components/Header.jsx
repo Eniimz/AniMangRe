@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaMoon, FaSearch, FaBars, FaSun} from "react-icons/fa"
 import {AiOutlineSearch} from'react-icons/ai'
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, Button, Dropdown, DropdownDivider, Navbar, TextInput } from 'flowbite-react';
 import { useSelector,useDispatch } from 'react-redux';
 import { signOut } from '../redux/userSlice';
@@ -9,12 +9,24 @@ import { current } from '@reduxjs/toolkit';
 import {toggleMode} from '../redux/theme/themSlice'
 
 
+
 function Header() {
 
     const dispatch = useDispatch();
     const path = useLocation().pathname;
+    const navigate = useNavigate();
     const {mode} = useSelector(state => state.theme)
     const { data: currentUser } = useSelector((state) => state.user)
+    const [searchTerm, setSearchTerm] = useState("")
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const searchTermFromUrl = urlParams.get('searchTerm');
+        if (searchTermFromUrl) {
+          setSearchTerm(searchTermFromUrl);
+        }
+        console.log("use Effect of Header ran")
+      }, [location.search]);
 
     const handleSignOut = async () => {
 
@@ -32,17 +44,29 @@ function Header() {
         }
     }
 
+    const handleSubmit = async (e) => {
+
+        e.preventDefault();
+        const urlParams = new URLSearchParams(location.search);
+        urlParams.set('searchTerm', searchTerm);
+        const searchQuery = urlParams.toString(); 
+        navigate(`/search?${searchQuery}`)
+        console.log("Submit of Search ran");
+    }
+
   return (
     <Navbar className={`border-b-2`}>
             <div className=''>
                 <Link to = "/" className='text-xl font-bold'>AniMangRe</Link>
             </div>
 
-            <form className='flex'>
+            <form className='flex' onSubmit={handleSubmit}>
                 <TextInput
                 placeholder='Search..'
                 rightIcon={FaSearch}
                 className='hidden lg:inline'
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </form>
             <Button  className='h-10 w-12 lg:hidden flex' color='gray' pill>

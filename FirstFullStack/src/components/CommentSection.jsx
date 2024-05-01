@@ -7,6 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Rating } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
 import { populateOverallRating } from '../redux/postSlice';
+import { HiInformationCircle } from 'react-icons/hi';
 
 export const CommentSection = () => {
 
@@ -20,11 +21,11 @@ export const CommentSection = () => {
   const [filled, setFilled] = useState(Array(10).fill(false));
 
   const [commentData, setCommentData] = useState({
-      username: currentUser.username,
+      username: currentUser?.username,
       postId,
-      pfp: currentUser.pfp, 
+      pfp: currentUser?.pfp, 
       comment: '',  
-      userId: currentUser._id,
+      userId: currentUser?._id,
       stars: 0
     
   });
@@ -249,11 +250,18 @@ export const CommentSection = () => {
   return (
     <div className='w-full p-3 flex flex-col gap-3'>
 
-      <p className='flex gap-2 text-sm'>
-        Signed in as  <img src={currentUser.pfp} className='rounded-3xl w-7'/><span className='text-blue-300'> @{currentUser.username} </span>
+      {
+        currentUser ?
+        <p className='flex gap-2 text-sm'>
+        Signed in as  <img src={currentUser?.pfp} className='rounded-3xl w-7'/><span className='text-blue-300'> @{currentUser?.username} </span>
       </p>
 
-      <form className='flex flex-col gap-5 border rounded-lg border-gray-300 p-3' ref={targetRef}>
+      :
+       <Alert className='mb-10 text-md  ' color="success" icon={HiInformationCircle} rounded > Sign in to post a review </Alert>
+      
+    }
+
+      {currentUser && <form className='flex flex-col gap-5 border rounded-lg border-gray-300 p-3' ref={targetRef}>
         <Textarea placeholder='Add a review...' rows='3' maxLength='200' id='comment' onChange={handleChange} value={commentData.comment} />
 
         <div className='flex items-center justify-between'>
@@ -287,7 +295,7 @@ export const CommentSection = () => {
 
         </div>
         
-      </form>
+      </form>}
 
       <p className='flex gap-1'>
           Comments
@@ -316,7 +324,7 @@ export const CommentSection = () => {
 
                 <div className='mt-2 flex items-center gap-2 border-gray-500 border-t pt-2 w-fit'>
                   <div className='flex items-center gap-2 text-sm'> <FaThumbsUp className='w-3'/>{}</div>
-                    {comment.userId == currentUser._id &&
+                    {comment?.userId == currentUser?._id &&
                     <div className='flex gap-2 items-center'> 
                       <p className='text-sm cursor-pointer text-gray-500 font-medium hover:text-blue-300' onClick={() => handleEdit(comment._id, comment.comment, comment.stars)} >Edit</p>
                       <p className='text-sm cursor-pointer text-gray-500 font-medium hover:text-red-400' onClick={() => handleDelete(comment._id)}>
