@@ -12,7 +12,12 @@ const commentSchema = new mongoose.Schema({
     comment: {
         type: String
     },
-    Likes: {
+    likes: {
+        type: Array,
+        default: [],
+        
+    },
+    NumberOfLikes : {
         type: Number,
         default: 0
     },

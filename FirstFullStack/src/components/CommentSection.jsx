@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Textarea, Button, Alert } from 'flowbite-react';
 import { useSelector } from 'react-redux';
 import { addISOWeekYears } from 'date-fns';
-import { FaThumbsUp } from 'react-icons/fa';
+import { FaLandmark, FaThumbsUp } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { Rating } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
@@ -34,7 +34,7 @@ export const CommentSection = () => {
   const [totalComments, setTotalComments] = useState(0);
   const [update, setUpdate] = useState(false);
   const [globalCommentIdState, setGlobalCommentIdState ] = useState('')
-
+  
   const [error, setError] = useState('')
 
     // console.log("Total Comments: ", totalComments);
@@ -56,7 +56,7 @@ export const CommentSection = () => {
         dispatch(populateOverallRating(data.overallRating))
         console.log(data);
 
-        setComments(data.comments);
+        setComments(data.comments);        
         setTotalComments(data.totalComments);
   
       }catch(err){
@@ -66,6 +66,8 @@ export const CommentSection = () => {
     }
 
     getPostComments();
+
+    console.log("USE EFFECT FOR GETTING POSTS")
 
   }, [flag]) 
   
@@ -245,7 +247,21 @@ export const CommentSection = () => {
     setFlag(prevValue => !prevValue);
 
   }
-  
+
+  const handleLike = async (likedCommentId) => {
+    try{
+
+      const res = await fetch(`/api/comments/updateLikes/${likedCommentId}`, {
+        method: 'PUT'
+      })
+      const data = await res.json();
+
+    }catch(err){
+      console.error(err.message);
+    }
+
+    setFlag(prevValue => !prevValue)
+  }
 
   return (
     <div className='w-full p-3 flex flex-col gap-3'>
@@ -323,7 +339,7 @@ export const CommentSection = () => {
                 <p className='font-normal text-gray-400'> {comment.comment} </p>
 
                 <div className='mt-2 flex items-center gap-2 border-gray-500 border-t pt-2 w-fit'>
-                  <div className='flex items-center gap-2 text-sm'> <FaThumbsUp className='w-3'/>{}</div>
+                  <div className='flex items-center gap-2 text-sm'> <FaThumbsUp className='w-3 cursor-pointer ' onClick={() => handleLike(comment._id)} /> <span> {comment.NumberOfLikes} </span> </div>
                     {comment?.userId == currentUser?._id &&
                     <div className='flex gap-2 items-center'> 
                       <p className='text-sm cursor-pointer text-gray-500 font-medium hover:text-blue-300' onClick={() => handleEdit(comment._id, comment.comment, comment.stars)} >Edit</p>

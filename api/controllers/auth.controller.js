@@ -88,8 +88,8 @@ export const googleSignIn = async (req, res, next) => {
         const foundUser = await User.findOne({email})
 
         if(foundUser){
-            const {password: pass, ...rest} = foundUser._doc
-            const token = jwt.sign({id: foundUser._id}, process.env.JWT_SECRET)
+            const {password: pass, ...rest} = foundUser._doc;
+            const token = jwt.sign({id: foundUser._id}, process.env.JWT_SECRET);
             res.status(200).cookie('access_token', token, {
                 httpOnly: true
             }).json(rest)

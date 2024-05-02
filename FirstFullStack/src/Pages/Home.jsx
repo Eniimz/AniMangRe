@@ -52,6 +52,18 @@ function Home() {
 
         setPosts(data.getPosts);
 
+        setSortPosts((prevPosts) => {
+
+          const newArray = [];
+  
+          data.getPosts.map((post) => newArray.push(post));
+  
+          newArray.sort((a, b) => b.rating - a.rating);
+  
+          return newArray;
+      
+        })
+
       }catch(err){
         console.log(err.message)
       }
@@ -59,21 +71,6 @@ function Home() {
     fetchPosts();
 
   }, [])
-
-    useEffect(() => {
-      setSortPosts((prevPosts) => {
-
-        const newArray = [];
-
-        posts.map((post) => newArray.push(post));
-
-        newArray.sort((a, b) => b.rating - a.rating);
-
-        return newArray;
-    
-      })
-
-    }, [posts])
 
   console.log("SortedPosts: ", sortPosts)
 
