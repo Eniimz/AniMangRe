@@ -83,13 +83,13 @@ function Edits() {
         <Link to={`/posts/${post._id}`} key={index} >
         <div className='flex flex-col gap-2 w-fit rounded-lg cursor-pointer' key={uuid()} onClick={() => dispatch(selectedPostId(post._id))}>
 
-            <img src={post.thumbnailSrc} alt="firebase img" className='w-80 h-40 rounded-lg'/>
+            <img src={post.thumbnailSrc} alt="firebase img" className='vsm:h-48 sm:w-96 sm:h-52 lmd:w-72 lmd:h-36 xl:w-80 xl:h-40 rounded-lg'/>
             
-            <div className='flex items-center gap-3'>
-                <img src={postImages[index]} alt="" referrerPolicy="no-referrer" className='rounded-3xl w-10'/>
+            <div className='flex items-center gap-3 sm:px-0 vsm:px-3'>
+                <img src={post.pfp} alt="no pfp" referrerPolicy="no-referrer" className='rounded-3xl w-10'/>
                 <div className='w-full'>
-                    <h3 className='max-w-64'>{post.title}</h3>   
-                    <p className='text-sm from-neutral-100'>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</p>
+                    <h3 className='max-w-64 text-md font-semibold'>{post.title}</h3>   
+                    <p className='text-sm'> {post.postCreator} &#8226; {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</p>
                 </div>
             </div>
         </div>  
@@ -98,18 +98,27 @@ function Edits() {
 
 
   return (
-    <div className='min-h-screen'>
-        <div className='mt-10 px-20 flex flex-wrap gap-5'>
-            {  
-            loading ?
-            <div className='flex justify-center w-full'>
-                <Spinner size='xl'/>
+    <div className='min-h-screen' >
+
+        <div className=' flex flex-col sm:px-0 mt-10 lmd:px-20 gap-5 pb-14 items-center'>
+            
+            <div className=''>
+                <h1 className='font-bold text-2xl'>All Edits</h1>
             </div>
-            :
-            postBox
-            }
+
+            <div className='grid sm:grid-cols-1 lmd:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-5 gap-7'>
+                {  
+                loading ?
+                <div className='flex justify-center w-full'>
+                    <Spinner size='xl'/>
+                </div>
+                :
+                postBox
+                }
+            </div>
         </div>
-    </div>
+
+        </div>
   )
 }
 

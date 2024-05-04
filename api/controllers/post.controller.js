@@ -74,11 +74,20 @@ export const createPost = async (req, res, next) => {
         return next(errorHandler(400, "All fields are required"))
     }
 
+    const user =await User.findById(req.user.id);
+
+    if(!user){
+        errorHandler(400, "User Not Found")
+    }
+
+
     const newPost = new Post({
         userId: req.user.id,
         title,
         videoSrc: src,
         thumbnailSrc,
+        pfp: user.pfp,
+        postCreator: user.username,
         description
     })
 
