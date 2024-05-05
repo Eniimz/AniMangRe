@@ -6,7 +6,8 @@ import authRoutes from "./routes/auth.route.js"
 import postRoutes from './routes/post.route.js'
 import commentRoutes from './routes/comment.route.js'
 import cookieParser from 'cookie-parser';
-import timeout from 'connect-timeout'
+import timeout from 'connect-timeout';
+import path from 'path;'
 dotenv.config()
 
 mongoose.connect(process.env.MONGO)
@@ -15,6 +16,8 @@ mongoose.connect(process.env.MONGO)
 }).catch((err) => {
     console.log(err)
 })
+
+const __dirname = path.resolve()
 
 const app = express();
 app.use(timeout('400s'));
@@ -39,6 +42,11 @@ app.use('/api/auth', authRoutes )
 app.use('/api/posts', postRoutes)
 app.use('/api/comments', commentRoutes)
 
+app.use(express.static(path.join(__dirname, 'FirstFullStack/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'))
+})
 
 app.use((err, req, res, next) => {
 
