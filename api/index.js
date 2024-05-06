@@ -7,7 +7,7 @@ import postRoutes from './routes/post.route.js'
 import commentRoutes from './routes/comment.route.js'
 import cookieParser from 'cookie-parser';
 import timeout from 'connect-timeout';
-import path from 'path;'
+import path from 'path';
 dotenv.config()
 
 mongoose.connect(process.env.MONGO)
