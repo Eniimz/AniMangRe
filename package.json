@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon api/index.js",
-    "vercel build" : "echon hello"
+    "vercel build" : "echo hello"
   },
   "keywords": [],
   "author": "",
