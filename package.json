@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon api/index.js",
-    "build": "npm install && npm install --prefix FirstFullStack && npm run build --prefix FirstFullStack"
+    "dev": "nodemon api/index.js"
   },
   "keywords": [],
   "author": "",
