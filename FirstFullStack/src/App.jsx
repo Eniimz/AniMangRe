@@ -17,6 +17,7 @@ import Search from "./Pages/Search"
 
 
 const App = () => {
+
     return (
         <BrowserRouter>
         <Header />
