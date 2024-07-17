@@ -15,6 +15,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config()
 
+// const MongoClient = new mongodb.MongoClient(connectionURL, { useNewUrlParser: true })
+
+
 mongoose.connect(process.env.MONGO)
 .then(() => {
     console.log("MongoDB is connected")
