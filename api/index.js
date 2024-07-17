@@ -10,12 +10,13 @@ import timeout from 'connect-timeout';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import mongodb from 'mongodb'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config()
 
-// const MongoClient = new mongodb.MongoClient(connectionURL, { useNewUrlParser: true })
+const MongoClient = new mongodb.MongoClient(process.env.MONGO, { useNewUrlParser: true })
 
 
 mongoose.connect(process.env.MONGO)
