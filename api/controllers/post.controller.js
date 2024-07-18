@@ -58,12 +58,11 @@ async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
 
 const __dirname = path.resolve();
 
-const ffmpegPath = path.join("/usr/bin", "ffmpeg")
-const ffprobePath = path.join("/usr/bin", "ffprobe")
+const ffmpegPath = path.join("/usr/share/man/man1", "ffmpeg")
+const ffprobePath = path.join("/usr/share/man/man1", "ffprobe")
 
 Ffmpeg.setFfmpegPath(ffmpegPath);
 Ffmpeg.setFfprobePath(ffprobePath);
-
 
 
 export const createPost = async (req, res, next) => {
