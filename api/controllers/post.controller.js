@@ -187,9 +187,9 @@ export const getThumbnail = (req, res, next) => {
     const firebaseUrl = req.body.filePath;
 
     const {fileName} = req.body;
-    const tempFilePath = path.join(__dirname, 'temp', `${fileName}-${uuidv4()}`) //creating temp video file
+    const tempFilePath = path.join('/home/ubuntu/app/AniMangRe', 'temp', `${fileName}-${uuidv4()}`) //creating temp video file
 
-    const tempThumbnailDirectory = path.join(__dirname, 'thumbnails')
+    const tempThumbnailDirectory = path.join('/home/ubuntu/app/AniMangRe', 'thumbnails')
 
     const file = fs.createWriteStream(tempFilePath); //creating a write stream - a mechanism so that data can be written to the file
 
