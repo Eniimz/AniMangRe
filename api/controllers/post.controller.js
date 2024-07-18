@@ -242,6 +242,14 @@ export const getThumbnail = (req, res, next) => {
 
                         console.log("Screenshots Taken")  
                         const firstThumbnailFile = getFirstFile(tempThumbnailDirectory);
+
+                        if(firstThumbnailFile){
+                            console.log("The first thumbnail file is present")
+                        }
+                        else{
+                            console.log("The first file is not present")
+                        }
+
                         // uploadFileToStorageAndGetUrl(firstThumbnailFile, thumbnailFileName);
 
                         try {
@@ -289,7 +297,7 @@ export const getThumbnail = (req, res, next) => {
                     .screenshots({
                         // Will take screens at 20%, 40%, 60% and 80% of the video
                         count: 3,
-                        folder: 'thumbnails',
+                        folder: '/home/ubuntu/app/AniMangRe/thumbnails',
                         size:'336x118',
                         // %b input basename ( filename w/o extension )
                         filename:'thumbnail-%b.png'
