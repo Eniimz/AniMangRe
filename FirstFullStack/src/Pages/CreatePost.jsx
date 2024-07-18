@@ -139,6 +139,7 @@ function CreatePost() {
                             }))
                         }
                         setProcessingVid(false);
+                        console.log("ThumbnailSrc Url: ", data.thumbnailUrl)
                         console.log("The processing after: ", processingVid);   
                         
                     })
