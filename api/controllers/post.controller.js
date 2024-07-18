@@ -58,8 +58,8 @@ async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
 
 const __dirname = path.resolve();
 
-const ffmpegPath = path.join("/usr/bin", "ffmpeg")
-const ffprobePath = path.join("/usr/bin", "ffprobe")
+const ffmpegPath = "/usr/bin/ffmpeg"
+const ffprobePath = "/usr/bin/ffprobe"
 
 Ffmpeg.setFfmpegPath(ffmpegPath);
 Ffmpeg.setFfprobePath(ffprobePath);
