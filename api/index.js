@@ -34,7 +34,7 @@ app.use(cookieParser())
 
 
 const _dirname = path.dirname("");
-const baseDir = path.join('C:\\Tryin Projects\\Trying React\\Full stack')
+const baseDir = path.posix.join('C:', 'Tryin Projects', 'Trying React', 'Full stack');
 const buildPath = path.join(baseDir ,"FirstFullStack", "dist" )
 
 const server = app.listen(3000, () => {
