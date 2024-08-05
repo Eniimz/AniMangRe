@@ -13,6 +13,6 @@ The application contains authentication, authorization, user profiles, posts fee
 - MongoDB
 - tailwind css
 
-  # Project Structure
+# Project Structure
 - **Client:** The `FirstFullStack` folder contains the Frontend code. Detailed information about the frontend stack, architecture, and functionalities can be found within this directory.
 - **Server:** The `api` folder holds the Backend code. Detailed information about the backend stack, architecture, and functionalities can be found within this directory.
