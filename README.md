@@ -2,7 +2,7 @@
 
 AniMangre is the platform designed for posting, reviewing and exploring amv's. 
 
-This application is specifically designed for the amv editing communnity , through this i was able to further my knowledge and skills in full-stack web development.
+This application is specifically designed for the amv editing community , through this i was able to further my knowledge and skills in full-stack web development.
 
 The application contains authentication, authorization, user profiles, posts feed, reviews and more.
 
