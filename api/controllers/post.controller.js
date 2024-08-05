@@ -58,12 +58,11 @@ async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
 
 const __dirname = path.resolve();
 
-const ffmpegPath = 'C:\\ffmpeg\\bin\\ffmpeg.exe'
-const ffprobePath = 'C:\\ffmpeg\\bin\\ffprobe.exe';
+const ffmpegPath = "/usr/bin/ffmpeg"
+const ffprobePath = "/usr/bin/ffprobe"
 
 Ffmpeg.setFfmpegPath(ffmpegPath);
 Ffmpeg.setFfprobePath(ffprobePath);
-
 
 
 export const createPost = async (req, res, next) => {
@@ -74,11 +73,20 @@ export const createPost = async (req, res, next) => {
         return next(errorHandler(400, "All fields are required"))
     }
 
+    const user =await User.findById(req.user.id);
+
+    if(!user){
+        errorHandler(400, "User Not Found")
+    }
+
+
     const newPost = new Post({
         userId: req.user.id,
         title,
         videoSrc: src,
         thumbnailSrc,
+        pfp: user.pfp,
+        postCreator: user.username,
         description
     })
 
@@ -119,6 +127,8 @@ export const getPosts = async (req, res, next) => {
             now.getMonth() - 1,
             now.getDate()
         )
+
+        console.log("searchTerm: ", req.query.searchTerm);
 
         const lastMonthPosts = await Post.countDocuments({
             createdAt: { $gte: oneMonthAgo}
@@ -176,9 +186,9 @@ export const getThumbnail = (req, res, next) => {
     const firebaseUrl = req.body.filePath;
 
     const {fileName} = req.body;
-    const tempFilePath = path.join(__dirname, 'temp', `${fileName}-${uuidv4()}`) //creating temp video file
+    const tempFilePath = path.join('/home/ubuntu/app/AniMangRe', 'temp', `${fileName}-${uuidv4()}`) //creating temp video file
 
-    const tempThumbnailDirectory = path.join(__dirname, 'thumbnails')
+    const tempThumbnailDirectory = path.join('/home/ubuntu/app/AniMangRe', 'thumbnails')
 
     const file = fs.createWriteStream(tempFilePath); //creating a write stream - a mechanism so that data can be written to the file
 
@@ -232,6 +242,14 @@ export const getThumbnail = (req, res, next) => {
 
                         console.log("Screenshots Taken")  
                         const firstThumbnailFile = getFirstFile(tempThumbnailDirectory);
+
+                        if(firstThumbnailFile){
+                            console.log("The first thumbnail file is present")
+                        }
+                        else{
+                            console.log("The first file is not present")
+                        }
+
                         // uploadFileToStorageAndGetUrl(firstThumbnailFile, thumbnailFileName);
 
                         try {
@@ -278,7 +296,7 @@ export const getThumbnail = (req, res, next) => {
                     .screenshots({
                         // Will take screens at 20%, 40%, 60% and 80% of the video
                         count: 3,
-                        folder: 'thumbnails',
+                        folder: '/home/ubuntu/app/AniMangRe/thumbnails',
                         size:'336x118',
                         // %b input basename ( filename w/o extension )
                         filename:'thumbnail-%b.png'

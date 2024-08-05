@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Textarea, Button, Alert } from 'flowbite-react';
 import { useSelector } from 'react-redux';
 import { addISOWeekYears } from 'date-fns';
-import { FaThumbsUp } from 'react-icons/fa';
+import { FaLandmark, FaThumbsUp } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { Rating } from 'flowbite-react';
 import { useDispatch } from 'react-redux';
 import { populateOverallRating } from '../redux/postSlice';
+import { HiInformationCircle } from 'react-icons/hi';
 
 export const CommentSection = () => {
 
@@ -18,13 +19,14 @@ export const CommentSection = () => {
   const targetRef = useRef();
 
   const [filled, setFilled] = useState(Array(10).fill(false));
+  const [isReviewed, setIsReviewed] = useState(false)
 
   const [commentData, setCommentData] = useState({
-      username: currentUser.username,
+      username: currentUser?.username,
       postId,
-      pfp: currentUser.pfp, 
+      pfp: currentUser?.pfp, 
       comment: '',  
-      userId: currentUser._id,
+      userId: currentUser?._id,
       stars: 0
     
   });
@@ -33,6 +35,7 @@ export const CommentSection = () => {
   const [totalComments, setTotalComments] = useState(0);
   const [update, setUpdate] = useState(false);
   const [globalCommentIdState, setGlobalCommentIdState ] = useState('')
+  const [forEdit, setForEdit] = useState(false);
 
   const [error, setError] = useState('')
 
@@ -55,7 +58,7 @@ export const CommentSection = () => {
         dispatch(populateOverallRating(data.overallRating))
         console.log(data);
 
-        setComments(data.comments);
+        setComments(data.comments);        
         setTotalComments(data.totalComments);
   
       }catch(err){
@@ -66,8 +69,15 @@ export const CommentSection = () => {
 
     getPostComments();
 
+    console.log("USE EFFECT FOR GETTING POSTS")
+
   }, [flag]) 
   
+  useEffect(() => {   //checking if the user has already posted a review
+
+    comments?.map((comment) => comment.userId === currentUser._id && setIsReviewed(true))
+
+  }, [comments])
 
   const handleChange = (e) => {
     setCommentData((prevData) => (
@@ -119,8 +129,7 @@ export const CommentSection = () => {
       }
 
       setFilled(prevFilled => prevFilled.fill(false))
-
-      setFlag(prevValue => !prevValue);
+      setFlag(prevValue => !prevValue)
 
 
     }catch(err){
@@ -141,6 +150,7 @@ export const CommentSection = () => {
       console.log(data)
       
       setFlag(prevValue => !prevValue);
+      setIsReviewed(false)
 
 
     }catch(err){
@@ -179,7 +189,7 @@ export const CommentSection = () => {
 
   const handleEdit = async (commentId, comment, stars) => {
 
-    scrollToTarget();
+    
     setCommentData((prevData) => ({
       ...prevData,
       comment,
@@ -189,6 +199,9 @@ export const CommentSection = () => {
     setGlobalCommentIdState(commentId);
     setUpdate(true);
     handleRating(stars - 1);
+    setFlag(prevValue => !prevValue)
+    setForEdit(true)
+    scrollToTarget();
 
   }
 
@@ -219,7 +232,7 @@ export const CommentSection = () => {
       ...prevData,
       stars: globalStars
     }))
-
+    setForEdit(false)
     commentData.stars = globalStars;
 
     console.log("globalCommentIdState: ", globalCommentIdState)
@@ -244,19 +257,44 @@ export const CommentSection = () => {
     setFlag(prevValue => !prevValue);
 
   }
-  
+
+  console.log("ForEdit state: ", forEdit)
+  console.log("isReviewed State: ", isReviewed)
+
+  const handleLike = async (likedCommentId) => {
+    try{
+
+      const res = await fetch(`/api/comments/updateLikes/${likedCommentId}`, {
+        method: 'PUT'
+      })
+      const data = await res.json();
+
+    }catch(err){
+      console.error(err.message);
+    }
+
+    setFlag(prevValue => !prevValue)
+  }
 
   return (
-    <div className='w-full p-3 flex flex-col gap-3'>
+    <div className='w-full vsm:px-1 sm:p-3 flex flex-col gap-3'>
 
-      <p className='flex gap-2 text-sm'>
-        Signed in as  <img src={currentUser.pfp} className='rounded-3xl w-7'/><span className='text-blue-300'> @{currentUser.username} </span>
+      {
+        currentUser ?
+        <p className='flex vsm:px-2 sm:px-0 gap-2 text-sm'>
+        Signed in as  <img src={currentUser?.pfp} className='rounded-3xl w-7'/><span className='text-blue-300'> @{currentUser?.username} </span>
       </p>
 
-      <form className='flex flex-col gap-5 border rounded-lg border-gray-300 p-3' ref={targetRef}>
+      :
+       <Alert className='mb-10 text-md  ' color="success" icon={HiInformationCircle} rounded > Sign in to post a review </Alert>
+      
+    }
+
+      {(currentUser && !isReviewed) || (currentUser && forEdit) ?
+      <form className='flex flex-col sm:gap-5 vsm:gap-3 border rounded-lg border-gray-300 vsm:p-2 sm:p-3' ref={targetRef}>
         <Textarea placeholder='Add a review...' rows='3' maxLength='200' id='comment' onChange={handleChange} value={commentData.comment} />
 
-        <div className='flex items-center justify-between'>
+        <div className='flex sm:flex-row vsm:flex-col sm:gap-0 vsm:gap-2 items-center justify-between'>
           <p className='text-sm'>
             <Rating className='rounded-lg p-1 flex gap-1'>
 
@@ -287,14 +325,18 @@ export const CommentSection = () => {
 
         </div>
         
-      </form>
+      </form> :
+      
+      <div>
+      </div>
+      }
 
       <p className='flex gap-1'>
           Comments
         <span className='border px-2'>{ totalComments ? totalComments : 0 }</span>
       </p>
 
-      <div className='flex flex-col px-8 gap-2 mt-4'>
+      <div className='flex flex-col vsm:px-1 lmd:px-8 gap-2 mt-4'>
         {
           comments?.map((comment, index) => (
             <div className='flex gap-2 border-b border-gray-700 pb-5' key={index}>
@@ -305,18 +347,18 @@ export const CommentSection = () => {
 
               <div className='flex flex-1 flex-col'>
                 <div className='flex gap-2 mb-1 justify-between'>
-                  <div className='flex gap-2 mb-1 items-center'>
+                  <div className='flex lmd:flex-row vsm:flex-col lmd:gap-2 mb-1 sm:items-center'>
                     <p className='font-bold text-sm'>@{comment.username}</p>
                     <p className='text-sm text-gray-300'>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
                   </div>
-                  <p className='text-sm'>Reviewers rating: {comment.stars}/10</p>
+                  <p className='text-sm'>Reviewers rating: {comment.stars} / 10</p>
                 </div>
 
                 <p className='font-normal text-gray-400'> {comment.comment} </p>
 
                 <div className='mt-2 flex items-center gap-2 border-gray-500 border-t pt-2 w-fit'>
-                  <div className='flex items-center gap-2 text-sm'> <FaThumbsUp className='w-3'/>{}</div>
-                    {comment.userId == currentUser._id &&
+                  <div className='flex items-center gap-2 text-sm'> <FaThumbsUp className='w-3 cursor-pointer ' onClick={() => handleLike(comment._id)} /> <span> {comment.NumberOfLikes} </span> </div>
+                    {comment?.userId == currentUser?._id &&
                     <div className='flex gap-2 items-center'> 
                       <p className='text-sm cursor-pointer text-gray-500 font-medium hover:text-blue-300' onClick={() => handleEdit(comment._id, comment.comment, comment.stars)} >Edit</p>
                       <p className='text-sm cursor-pointer text-gray-500 font-medium hover:text-red-400' onClick={() => handleDelete(comment._id)}>

@@ -1,5 +1,6 @@
 import Comment from "../models/comment.model.js"
 import Post from "../models/post.model.js";
+import errorHandler from "../utils/errorHandler.js";
 
 
 export const createComment = async (req, res, next) => {
@@ -93,7 +94,7 @@ export const updateComment = async (req, res, next) => {
 
     const { username, comment, stars } = req.body;
 
-    try{
+    try{    
         const updatedUser = await Comment.findByIdAndUpdate(req.params.commentId, {
             $set: {
                 comment,
@@ -102,10 +103,47 @@ export const updateComment = async (req, res, next) => {
         }, { new: true });
 
         res.status(200).json({
-            message: 'Updated successfully'
+            message: 'Updated successfully',
+            comment: updatedUser
         })
     }catch(err){
         next(err);
+    }
+
+}
+
+export const updateLikes = async (req, res, next) => {
+
+    try{
+        const foundComment = await Comment.findByIdAndUpdate(req.params.commentId);
+
+        if(!foundComment){
+            next(errorHandler(400, "An error occured"))
+        }
+
+        const userIndex = foundComment.likes.indexOf(req.user.id);
+
+        if(userIndex === -1){
+            foundComment.NumberOfLikes += 1;
+            foundComment.likes.push(req.user.id)
+
+        }else{
+            foundComment.NumberOfLikes -= 1;
+            foundComment.likes.splice(req.user.id, 1)
+        }
+
+        await foundComment.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Update successfully",
+            userId: req.user.id, 
+            NumberOfLikes: foundComment.NumberOfLikes,
+            likesArray: foundComment.likes
+        })
+
+    }catch(err){
+        next(err)
     }
 
 }

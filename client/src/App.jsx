@@ -13,9 +13,11 @@ import CreatePost from "./Pages/CreatePost"
 import UpdatePost from "./Pages/UpdatePost"
 import Edits from "./Pages/Edits"
 import { Edit } from "./Pages/Edit"
+import Search from "./Pages/Search"
 
 
 const App = () => {
+
     return (
         <BrowserRouter>
         <Header />
@@ -24,6 +26,7 @@ const App = () => {
             <Route path= "/about" element = {<About />} />
             <Route path="/sign-in" element = {<SignIn />} />
             <Route path="/sign-up" element = {<SignUp />} />
+            <Route path="/search" element = {<Search />} />
             <Route element= {<PrivateRoutes />}>
                <Route path= '/dashboard' element= {<Dashboard />}/>
                <Route path="/create-post" element={<CreatePost />} />

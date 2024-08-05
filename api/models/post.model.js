@@ -24,6 +24,10 @@ const postSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    postCreator: {
+        type: String,
+        default: ''
+    },
     rating: {
         type: Number,
         default: 0,

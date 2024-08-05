@@ -139,6 +139,7 @@ function CreatePost() {
                             }))
                         }
                         setProcessingVid(false);
+                        console.log("ThumbnailSrc Url: ", data.thumbnailUrl)
                         console.log("The processing after: ", processingVid);   
                         
                     })
@@ -204,7 +205,7 @@ function CreatePost() {
 
 
   return (
-    <div className='mt-20 flex flex-col items-center gap-10 mx-10 min-h-screen'>
+    <div className='mt-20 flex flex-col items-center gap-10 vsm:mx-2 sm:mx-10 min-h-screen'>
         <div>
             <h1 className='font-bold text-2xl'>Post an Edit</h1>
         </div>
@@ -213,7 +214,7 @@ function CreatePost() {
             <TextInput placeholder='Title here...' id='title' onChange={handleChange}/>
         </div>
 
-        <div className='flex w-full justify-between max-w-md items-center'>
+        <div className='flex sm:flex-row vsm:gap-5 sm:gap-0 vsm:flex-col w-full justify-between max-w-md sm:items-center vsm:items-start'>
             <FileInput type='file' accept='video/*' onChange = {handleFileChange} className='w-56'/>
             {
             videoUploaded ? 
@@ -223,7 +224,7 @@ function CreatePost() {
             :
             uploadClicked ? 
             <Line percent={imageUploadProgress} strokeWidth={1} strokeLinecap='round' trailColor='#D3D3D3' trailWidth={1} strokeColor="green" className='h-3 w-48'/> 
-            : <Button onClick={uploadVideo2} disabled={video === null}> Upload Video </Button>        
+            : <Button gradientDuoTone='cyanToBlue' onClick={uploadVideo2} disabled={video === null}> Upload Video </Button>        
             }
             
         </div>
