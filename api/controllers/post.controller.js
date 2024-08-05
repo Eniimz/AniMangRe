@@ -49,7 +49,7 @@ async function uploadFileToStorageAndGetUrl(fileContent, fileName) {
       
 
 
-    } catch (error) {
+    } catch (error) {                                           
     //   fs.unlinkSync(tempFilePath)
       console.error('Error uploading file to Firebase Storage:', error);
     }
@@ -264,7 +264,6 @@ export const getThumbnail = (req, res, next) => {
                                 thumbnail: thumbnailFileName,
                                 fileDuration
                             })
-                      
                       
                           } catch (error) {
                             fs.unlinkSync(tempFilePath)
