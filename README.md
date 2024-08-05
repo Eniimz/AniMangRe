@@ -1,6 +1,6 @@
 # AniMangRe
 
-AniMangre is the platform designed for creating, reviewing and explore amv's. 
+AniMangre is the platform designed for posting, reviewing and explore amv's. 
 
 This application is specifically designed for the amv editing communnity , through this i was able further my knowledge and skills in full-stack web development.
 
